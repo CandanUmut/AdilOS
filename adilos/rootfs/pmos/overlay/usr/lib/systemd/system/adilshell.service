@@ -1,0 +1,12 @@
+[Unit]
+Description=AdilShell Mobile UX
+After=phosh.service network.target
+Requires=phosh.service
+
+[Service]
+Environment=QT_QPA_PLATFORM=wayland
+ExecStart=/usr/bin/adilshell
+Restart=on-failure
+
+[Install]
+WantedBy=graphical.target

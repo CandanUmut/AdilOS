@@ -1,0 +1,13 @@
+[Unit]
+Description=AdilOS Waydroid Helper
+After=network.target
+ConditionPathExists=/usr/bin/waydroid
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/adilos/waydroid-enable
+ExecStop=/usr/lib/adilos/waydroid-disable
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+log() {
+  echo "[initramfs] $1" >>/dev/kmsg
+  echo "$1"
+}
+
+emergency_shell() {
+  log "EMERGENCY: $1"
+  exec /bin/sh
+}
+
+mount_core_fs() {
+  mount -t devtmpfs devtmpfs /dev || return 1
+  mount -t proc proc /proc || return 1
+  mount -t sysfs sysfs /sys || return 1
+  mount -t tmpfs tmpfs /run || return 1
+  return 0
+}
+
+find_userdata() {
+  for path in \
+    /dev/block/by-name/userdata \
+    /dev/block/platform/*/by-name/userdata \
+    /dev/block/platform/*/*/by-name/userdata \
+    /dev/block/*; do
+    if [ -e "$path" ]; then
+      echo "$path"
+      return 0
+    fi
+  done
+  return 1
+}

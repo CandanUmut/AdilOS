@@ -1,0 +1,3 @@
+# Minimal tracker blocklist
+ads.example.com
+tracker.example.org

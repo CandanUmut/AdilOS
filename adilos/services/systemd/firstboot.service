@@ -1,0 +1,12 @@
+[Unit]
+Description=AdilOS First Boot Setup
+After=local-fs.target
+ConditionPathExists=!/etc/adilos/firstboot-complete
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/adilos/firstboot.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+  "name": "AdilNotes",
+  "description": "A minimal voice-enabled notes app.",
+  "flatpak": "org.adilos.AdilNotes",
+  "permissions": ["microphone", "filesystem"],
+  "signature": "SHA256:PLACEHOLDER",
+  "categories": ["education", "productivity"]
+}
