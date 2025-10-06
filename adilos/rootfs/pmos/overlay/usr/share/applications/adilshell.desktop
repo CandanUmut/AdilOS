@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=AdilShell
+Exec=/usr/bin/adilshell
+Type=Application
+Categories=System;Utility;

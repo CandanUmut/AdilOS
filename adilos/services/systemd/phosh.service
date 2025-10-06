@@ -1,0 +1,11 @@
+[Unit]
+Description=Phosh Compositor
+After=systemd-user-sessions.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/phosh
+Restart=on-failure
+
+[Install]
+WantedBy=graphical.target

@@ -1,0 +1,18 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.adilos.AI">
+    <method name="Generate">
+      <arg type="s" name="prompt" direction="in"/>
+      <arg type="s" name="response" direction="out"/>
+    </method>
+    <method name="Transcribe">
+      <arg type="ay" name="audio" direction="in"/>
+      <arg type="s" name="transcript" direction="out"/>
+    </method>
+    <method name="Speak">
+      <arg type="s" name="text" direction="in"/>
+      <arg type="ay" name="audio" direction="out"/>
+    </method>
+  </interface>
+</node>

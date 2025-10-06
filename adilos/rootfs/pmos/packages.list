@@ -1,0 +1,27 @@
+# Core system packages
+postmarketos-ui-phosh
+networkmanager
+wpa_supplicant
+elogind
+seatd
+polkit
+udev
+bluez
+pipewire
+wireplumber
+alsa-utils
+openssh-client
+vim
+
+# Wayland utilities
+phoc
+phosh-mobile-settings
+squeekboard
+
+# AdilOS packages (to be provided via overlay)
+adilshell
+adilbrowser
+fairstore
+adilnotes
+waydroid
+flatpak

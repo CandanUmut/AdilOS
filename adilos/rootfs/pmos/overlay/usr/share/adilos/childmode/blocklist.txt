@@ -1,0 +1,3 @@
+# Example blocklist entries
+adultsite.com
+tracking.example

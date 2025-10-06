@@ -1,0 +1,10 @@
+[Unit]
+Description=FairStore Application Repository
+After=graphical.target network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/share/fairstore/main.py
+Restart=on-failure
+
+[Install]
+WantedBy=graphical.target

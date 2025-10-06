@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "AdilOS First Boot Wizard"
+echo "This wizard configures essential privacy defaults."
+echo
+read -rp "Set timezone (e.g. UTC, Europe/Paris) [UTC]: " TZ
+TZ=${TZ:-UTC}
+ln -sf /usr/share/zoneinfo/$TZ /etc/localtime || true
+
+echo "Child Mode blocks adult content via DNS and store filters."
+read -rp "Enable Child Mode now? [y/N]: " CHILD
+if [[ "${CHILD,,}" == "y" ]]; then
+  touch /etc/adilos/childmode.enabled
+  systemctl enable --now childmode.service || true
+  echo "Child Mode enabled."
+else
+  rm -f /etc/adilos/childmode.enabled
+fi
+
+echo "Waydroid allows running Android apps and is disabled by default."
+read -rp "Enable Waydroid? [y/N]: " WAY
+if [[ "${WAY,,}" == "y" ]]; then
+  systemctl enable --now waydroid.service || true
+fi
+
+echo "All done!"
