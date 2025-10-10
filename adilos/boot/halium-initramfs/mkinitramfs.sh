@@ -1,22 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=$(realpath "$(dirname "$0")")
-OUT=${OUT:-$ROOT/../out/initramfs.cpio.gz}
-WORKDIR=$(mktemp -d)
-trap 'rm -rf "$WORKDIR"' EXIT
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+OUT_DIR="${REPO_ROOT}/out/boot"
+OUT="${OUT_DIR}/initramfs.cpio.gz"
 
-mkdir -p "$WORKDIR"/{bin,sbin,dev,proc,sys,run,etc}
-cp "$ROOT/init" "$WORKDIR/"
-cp "$ROOT/init.functions" "$WORKDIR/"
-chmod +x "$WORKDIR/init"
+mkdir -p "${OUT_DIR}"
 
+WORKDIR="$(mktemp -d)"
+trap 'rm -rf "${WORKDIR}"' EXIT
+
+mkdir -p "${WORKDIR}"/{bin,sbin,etc,proc,sys,dev,newroot,data}
+cp "${SCRIPT_DIR}/init" "${WORKDIR}/init"
+chmod +x "${WORKDIR}/init"
+
+# BusyBox (optional, improves shell)
 if command -v busybox >/dev/null 2>&1; then
-  cp "$(command -v busybox)" "$WORKDIR/bin/busybox"
-else
-  echo "Using prebuilt busybox is not supported yet." >&2
-  exit 1
+  cp "$(command -v busybox)" "${WORKDIR}/bin/busybox"
+  cat > "${WORKDIR}/bin/sh" <<'SH'
+#!/bin/sh
+exec /bin/busybox sh "$@"
+SH
+  chmod +x "${WORKDIR}/bin/sh"
 fi
 
-( cd "$WORKDIR" && find . | cpio -H newc -o ) | gzip -c > "$OUT"
-echo "Created initramfs at $OUT"
+# Create the archive
+( cd "${WORKDIR}" && find . -print0 | cpio --null -ov --format=newc | gzip -9 ) > "${OUT}"
+
+echo "Created initramfs at ${OUT}"

@@ -1,42 +1,33 @@
 #!/bin/sh
-set -eu
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-export PATH
-. /init.functions
+set -eux
 
-log "AdilOS initramfs starting"
+mount -t devtmpfs devtmpfs /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
 
-mount_core_fs || emergency_shell "Failed to mount core filesystems"
-
-USERDATA=$(find_userdata)
-[ -n "$USERDATA" ] || emergency_shell "Could not locate userdata partition"
-
-log "Mounting userdata from $USERDATA"
-mkdir -p /data
-if ! mount -t ext4 -o rw,noatime "$USERDATA" /data; then
-  emergency_shell "Failed to mount userdata"
-fi
-
-mkdir -p /data/adilos
-ROOTFS_IMG=/data/adilos/adilos-rootfs.img
-if [ ! -f "$ROOTFS_IMG" ]; then
-  emergency_shell "Rootfs image missing at $ROOTFS_IMG"
-fi
-
-log "Setting up loop device for rootfs"
-mkdir -p /newroot
-LOOPDEV=$(losetup -f --show "$ROOTFS_IMG") || emergency_shell "losetup failed"
-
-if ! mount -t ext4 -o rw,noatime "$LOOPDEV" /newroot; then
-  emergency_shell "Unable to mount loop rootfs"
-fi
-
-for dir in dev proc sys run; do
-  mkdir -p /newroot/"$dir"
-  mount --bind /"$dir" /newroot/"$dir"
+echo "AdilOS initramfs: locating userdata..."
+USERDATA=""
+for P in /dev/block/by-name/userdata /dev/block/platform/*/by-name/userdata /dev/block/*; do
+  if [ -e "$P" ]; then USERDATA="$P"; break; fi
 done
 
-echo "" > /newroot/etc/.initramfs
+[ -n "$USERDATA" ] || { echo "No userdata found"; exec sh; }
 
-log "Switching to real root"
-exec switch_root /newroot /sbin/init "$@"
+mkdir -p /data
+mount -t ext4 -o rw,noatime "$USERDATA" /data || exec sh
+
+mkdir -p /data/adilos
+if [ ! -f /data/adilos/adilos-rootfs.img ]; then
+  echo "Missing /data/adilos/adilos-rootfs.img; dropping to shell."
+  exec sh
+fi
+
+mkdir -p /newroot
+LOOPDEV="$(losetup -f --show /data/adilos/adilos-rootfs.img)"
+mount -t ext4 -o rw,noatime "$LOOPDEV" /newroot || exec sh
+
+mount --bind /dev /newroot/dev
+mount --bind /proc /newroot/proc
+mount --bind /sys /newroot/sys
+
+exec switch_root /newroot /sbin/init
